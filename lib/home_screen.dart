@@ -19,9 +19,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final _widgets = [
     //Pending task widget
-    const PendingWidgets(),
+    PendingWidgets(),
     //Completed task widget
-    const CompletedWidgets(),
+    CompletedWidgets(),
   ];
   @override
   Widget build(BuildContext context) {
