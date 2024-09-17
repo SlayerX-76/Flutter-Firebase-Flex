@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "338857208908",
+    "project_id": "flexlist-bde9b",
+    "storage_bucket": "flexlist-bde9b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:338857208908:android:087d81184ae4ab86dd18e9",
+        "android_client_info": {
+          "package_name": "com.example.flexlist.flex_list"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsI9VgS0159Y045JoM3AWnLZGNAxHaCCA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
