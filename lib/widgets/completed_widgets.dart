@@ -12,10 +12,8 @@ class CompletedWidgets extends StatefulWidget {
 }
 
 class _CompletedWidgetsState extends State<CompletedWidgets> {
-  User? user = FirebaseAuth.instance.currentUser;
-  late String uid;
-
   final DatabaseServices _databaseServices = DatabaseServices();
+  late String uid;
 
   @override
   void initState() {
@@ -26,67 +24,102 @@ class _CompletedWidgetsState extends State<CompletedWidgets> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Todo>>(
-        stream: _databaseServices.completedtodos,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            List<Todo> todos = snapshot.data!;
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: todos.length,
-              itemBuilder: (content, index) {
-                Todo todo = todos[index];
-                final DateTime dt = todo.timeStamp.toDate();
-                return Container(
-                  margin: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white54,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Slidable(
-                    key: ValueKey(todo.id),
-                    endActionPane: ActionPane(
-                      motion: DrawerMotion(),
-                      children: [
-                        SlidableAction(
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
-                            icon: Icons.delete,
-                            label: "Delete",
-                            onPressed: (context) async {
-                              await _databaseServices.deleteTodoTask(todo.id);
-                            }),
-                      ],
+      stream: _databaseServices.completedTodos,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No completed tasks'));
+        }
+
+        List<Todo> todos = snapshot.data!;
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: todos.length,
+          itemBuilder: (context, index) {
+            Todo todo = todos[index];
+            final DateTime dt = todo.timeStamp.toDate();
+            return Container(
+              margin: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white54,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Slidable(
+                key: ValueKey(todo.id),
+                endActionPane: ActionPane(
+                  motion: const DrawerMotion(),
+                  children: [
+                    SlidableAction(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      icon: Icons.undo,
+                      label: "Undo",
+                      onPressed: (context) async {
+                        try {
+                          await _databaseServices.updateTodoStatus(todo.id, false);
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error marking task as pending: $e')),
+                          );
+                        }
+                      },
                     ),
-                    child: ListTile(
-                      title: Text(
-                        todo.title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                      subtitle: Text(
-                        todo.description,
-                        style: TextStyle(
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                      trailing: Text(
-                        '${dt.day}/${dt.month}/${dt.year}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                  ],
+                ),
+                startActionPane: ActionPane(
+                  motion: const DrawerMotion(),
+                  children: [
+                    SlidableAction(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete,
+                      label: "Delete",
+                      onPressed: (context) async {
+                        try {
+                          await _databaseServices.deleteTodoTask(todo.id);
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error deleting task: $e')),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                child: ListTile(
+                  title: Text(
+                    todo.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      decoration: TextDecoration.lineThrough,
                     ),
                   ),
-                );
-              },
+                  subtitle: Text(
+                    todo.description,
+                    style: const TextStyle(
+                      decoration: TextDecoration.lineThrough,
+                    ),
+                  ),
+                  trailing: Text(
+                    '${dt.day}/${dt.month}/${dt.year}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             );
-          } else {
-            return Center(
-                child: CircularProgressIndicator(color: Colors.white));
-          }
-        });
+          },
+        );
+      },
+    );
   }
 }

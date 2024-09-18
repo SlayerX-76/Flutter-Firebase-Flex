@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "ToDo",
       theme: ThemeData(primarySwatch: Colors.indigo, primaryColor: Colors.indigo),
-      home: _auth.currentUser != null? HomeScreen() : LoginScreen(),
+      home: _auth.currentUser != null? const HomeScreen() : LoginScreen(),
     );
 
   }
